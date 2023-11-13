@@ -2,6 +2,7 @@ package jm.task.core.jdbc;
 
 
 import jm.task.core.jdbc.model.User;
+import jm.task.core.jdbc.service.UserService;
 import jm.task.core.jdbc.service.UserServiceImpl;
 import jm.task.core.jdbc.util.Util;
 
@@ -12,7 +13,7 @@ public class Main {
 
 
     public static void main(String[] args) {
-        UserServiceImpl USI = new UserServiceImpl();
+        UserService userService = new UserServiceImpl();
         ArrayList<User> UsersList = new ArrayList<>();
         User user1 = new User("Ivan", "Ivanov", (byte) 19);
         User user2 = new User("Petr", "Petrov", (byte) 20);
@@ -22,22 +23,17 @@ public class Main {
         UsersList.add(user2);
         UsersList.add(user3);
         UsersList.add(user4);
-        USI.createUsersTable();
+        userService.createUsersTable();
 
         for (User u : UsersList) {
-            USI.saveUser(u.getName(), u.getLastName(), u.getAge());
+            userService.saveUser(u.getName(), u.getLastName(), u.getAge());
             System.out.println("Пользователь с именем : " + u.getName() + " добавлен в таблицу");
         }
-        USI.getAllUsers();
-        USI.cleanUsersTable();
-        USI.dropUsersTable();
-        try {
-            Util.getConnection().close();
-            Util.getStatement().close();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        userService.getAllUsers();
+        userService.cleanUsersTable();
+        userService.dropUsersTable();
 
+        Util.close();
 
     }
 }
