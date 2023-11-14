@@ -69,9 +69,7 @@ public class Util {
 
     public static void close() {
         try {
-           // Util.getConnection().close();
-          //  Util.getStatement().close();
-           Util.getSessionFactory().close();
+            Util.getSessionFactory().close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
