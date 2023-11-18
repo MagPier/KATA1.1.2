@@ -5,6 +5,8 @@ import jm.task.core.jdbc.util.Util;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import javax.persistence.Query;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
@@ -16,26 +18,39 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void createUsersTable() {
-        String query = "CREATE TABLE IF NOT EXISTS Users (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255), lastName VARCHAR(255), age TINYINT ) ";
         Transaction transaction = null;
 
         try (Session session = Util.getSessionFactory().openSession()) {
-            session.createSQLQuery(query).executeUpdate();
+            transaction=session.beginTransaction();
+            session.createNativeQuery("CREATE TABLE IF NOT EXISTS users" +
+                    " (id mediumint not null auto_increment, name VARCHAR(50), " +
+                    "lastname VARCHAR(50), " +
+                    "age tinyint, " +
+                    "PRIMARY KEY (id))").executeUpdate();
+            transaction.commit();
+            System.out.println("Таблица создана");
         } catch (Exception e) {
+            e.printStackTrace();
             if (transaction != null) {
                 transaction.rollback();
             }
         }
-
     }
 
     @Override
     public void dropUsersTable() {
-        String query = "DROP DATABASE IF EXISTS users";
+        String query = "DROP TABLE IF EXISTS users ";
         Transaction transaction = null;
 
         try (Session session = Util.getSessionFactory().openSession()) {
-            session.createSQLQuery(query).executeUpdate();
+
+            transaction = session.beginTransaction();
+
+            session.createNativeQuery(query).executeUpdate();
+
+            transaction.commit();
+
+
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();
@@ -68,9 +83,8 @@ public class UserDaoHibernateImpl implements UserDao {
     public void removeUserById(long id) {
         Transaction transaction = null;
         try (Session session = Util.getSessionFactory().openSession()) {
-            User user = session.get(User.class, id);
             transaction = session.beginTransaction();
-            session.delete(user);
+            session.delete(session.get(User.class, id));
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
@@ -81,15 +95,14 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public List<User> getAllUsers() {
+        List<User> list = new ArrayList<>();
         try (Session session = Util.getSessionFactory().openSession()) {
 
-            List<User> users = session.createCriteria(User.class).list();
-            users.stream().forEach(System.out::println);
-            return users;
+            list = session.createCriteria(User.class).list();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return list;
     }
 
     @Override
@@ -98,7 +111,9 @@ public class UserDaoHibernateImpl implements UserDao {
         try (Session session = Util.getSessionFactory().openSession()) {
 
             transaction = session.beginTransaction();
-            session.createQuery("delete User").executeUpdate();
+            session.createNativeQuery("TRUNCATE TABLE users;").executeUpdate();
+
+
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
