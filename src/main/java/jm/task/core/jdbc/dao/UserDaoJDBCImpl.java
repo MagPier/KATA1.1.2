@@ -25,7 +25,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void dropUsersTable() {
-        String query = "DROP DATABASE IF EXISTS users ";
+        String query = "DROP TABLE IF EXISTS users ";
         try {
             Util.getStatement().execute(query);
         } catch (SQLException e) {
@@ -79,7 +79,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void cleanUsersTable() {
-        String query = "DELETE FROM Users";
+        String query = "TRUNCATE TABLE Users";
         try {
             Util.getStatement().execute(query);
         } catch (SQLException e) {
